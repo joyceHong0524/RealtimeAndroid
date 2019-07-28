@@ -7,12 +7,29 @@ var socketIo = require('socket.io');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
+var server = require('./bin/www')
 var app = express();
-var ioServer = require('socket.io')();
 
-ioServer.on('connection',function(socket){
+
+
+
+var ioServer = require('socket.io').listen(server);
+
+
+ioServer.sockets.on('connection',function(socket){
 	console.log("client has been connected")
+	console.log(`Socket ID : ${socket.id}`)
+
+	socket.on('clientMessage',function(data){
+		console.log(`Client message was ${data}`)
+
+		var message = {
+			msg : 'hi i;m server',
+			data : 'this is testing data'
+}
+
+		socket.emit('serverMessage',message)
+	})
 
 	socket.on('disconnect',function(){
 		console.log("client has been disconnected")
@@ -23,6 +40,9 @@ ioServer.on('connection',function(socket){
 	},1000);
 
 })
+
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');

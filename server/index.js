@@ -17,7 +17,11 @@ var whoIsOn= [];
 
 
 io.on('connection',function (socket){
-    console.log('client has been logged in')
+
+    var nickname = ``
+
+
+    // console.log('client has been logged in')
     // socket.on('clientMessage', function(data){
     //     console.log('Client Message : ' + data);
          
@@ -31,9 +35,9 @@ io.on('connection',function (socket){
 
 
     socket.on('login',function(data){
-        console.log(`username : ${data} has been logedin`)
+        console.log(`${data} has entered chatroom! ---------------------`)
         whoIsOn.push(data)
-
+        nickname = data
 
         //이렇게 하면 파싱을 할 수 있다 ㅡㅡ 그냥 넘기면 JSONArray로 넘어가서 복잡해짐
         var whoIsOnJson = `${whoIsOn}`
@@ -43,14 +47,28 @@ io.on('connection',function (socket){
     })
 
     socket.on('say',function(data){
-        console.log(`username : ${data} has been logedin`)
+        console.log(`${nickname} : ${data}`)
     
 
 
         socket.emit('myMsg',data)
         socket.broadcast.emit('newMsg',data)
-        console.log(`did you emit?`)
+    })
 
+    socket.on('disconnect',function(){
+        console.log(`${nickname} has left this chatroom ------------------------  `)
+    })
+
+    socket.on('logout',function(){
+
+        //Delete user in the whoIsOn Arryay
+
+        whoIsOn.splice(whoIsOn.indexOf(nickname),1);
+        var data = {
+            whoIsOn: whoIsOn,
+            disconnected : nickname
+        }
+        socket.emit('logout',data)
     })
 
 
